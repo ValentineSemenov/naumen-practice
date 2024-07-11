@@ -17,8 +17,7 @@ public class OrderProduct {
     @Column(nullable = false)
     private Integer countProduct;
 
-    public OrderProduct(Long id, ClientOrder clientOrder, Product product, Integer countProduct) {
-        this.id = id;
+    public OrderProduct(ClientOrder clientOrder, Product product, Integer countProduct) {
         this.clientOrder = clientOrder;
         this.product = product;
         this.countProduct = countProduct;

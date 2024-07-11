@@ -10,9 +10,15 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import ru.semenovValentine.tgBot.entity.Category;
+import ru.semenovValentine.tgBot.entity.Client;
+import ru.semenovValentine.tgBot.entity.ClientOrder;
+import ru.semenovValentine.tgBot.entity.OrderProduct;
 import ru.semenovValentine.tgBot.entity.Product;
-import ru.semenovValentine.tgBot.repository.CategoryRepository;
-import ru.semenovValentine.tgBot.repository.ProductRepository;
+import ru.semenovValentine.tgBot.dao.CategoryRepository;
+import ru.semenovValentine.tgBot.dao.ClientOrderRepository;
+import ru.semenovValentine.tgBot.dao.ClientRepository;
+import ru.semenovValentine.tgBot.dao.OrderProductRepository;
+import ru.semenovValentine.tgBot.dao.ProductRepository;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -28,6 +34,15 @@ public class XMLParserFillingTests {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private ClientRepository clientRepository;
+
+    @Autowired
+    private ClientOrderRepository clientOrderRepository;
+
+    @Autowired
+    private OrderProductRepository orderProductRepository;
 
     @Test
     void fillingTest() {
@@ -45,9 +60,61 @@ public class XMLParserFillingTests {
                     processCategory((Element) categoryNode);
                 }
             }
+            NodeList clientList = document.getElementsByTagName("client");
+            for (int i = 0; i < clientList.getLength(); i++) {
+                Node clientNode = clientList.item(i);
+                if (clientNode.getNodeType() == Node.ELEMENT_NODE) {
+                    processClient((Element) clientNode);
+                }
+            }
         } catch (IOException | ParserConfigurationException | SAXException e) {
             throw new RuntimeException("Ошибка в обработке XML файла", e);
         }
+    }
+
+    private void processClient(Element clientElement) {
+        Long externalId = Long.parseLong(clientElement.getAttribute("externalId"));
+        String fullName = clientElement.getAttribute("fullName");
+        String phoneNumber = clientElement.getAttribute("phoneNumber");
+        String address = clientElement.getAttribute("address");
+
+        Client client = new Client(externalId, fullName, phoneNumber, address);
+        clientRepository.save(client);
+
+        NodeList orderList = clientElement.getElementsByTagName("order");
+        for (int j = 0; j < orderList.getLength(); j++) {
+            Node orderNode = orderList.item(j);
+            if (orderNode.getNodeType() == Node.ELEMENT_NODE) {
+                processClientOrder((Element) orderNode, client);
+            }
+        }
+    }
+
+    private void processClientOrder(Element orderElement, Client client) {
+        int status = Integer.parseInt(orderElement.getAttribute("status"));
+        double total = Double.parseDouble(orderElement.getAttribute("total"));
+
+        ClientOrder clientOrder = new ClientOrder(client, status, total);
+        clientOrderRepository.save(clientOrder);
+
+        NodeList orderProductList = orderElement.getElementsByTagName("orderProduct");
+        for (int k = 0; k < orderProductList.getLength(); k++) {
+            Node orderProductNode = orderProductList.item(k);
+            if (orderProductNode.getNodeType() == Node.ELEMENT_NODE) {
+                processOrderProduct((Element) orderProductNode, clientOrder);
+            }
+        }
+    }
+
+    private void processOrderProduct(Element orderProductElement, ClientOrder clientOrder) {
+        Long productId = Long.parseLong(orderProductElement.getAttribute("productId"));
+        int count = Integer.parseInt(orderProductElement.getAttribute("count"));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Продукт с ID " + productId + " не найден"));
+
+        OrderProduct orderProduct = new OrderProduct(clientOrder, product, count);
+        orderProductRepository.save(orderProduct);
     }
 
     private Document parseXML(File file) throws ParserConfigurationException, SAXException, IOException {

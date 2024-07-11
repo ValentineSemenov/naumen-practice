@@ -23,8 +23,7 @@ public class Client {
     @Column(length = 400, nullable = false)
     private String address;
 
-    public Client(Long id, Long externalId, String fullName, String phoneNumber, String address) {
-        this.id = id;
+    public Client(Long externalId, String fullName, String phoneNumber, String address) {
         this.externalId = externalId;
         this.fullName = fullName;
         this.phoneNumber = phoneNumber;

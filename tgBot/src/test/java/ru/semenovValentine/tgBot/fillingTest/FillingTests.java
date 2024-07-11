@@ -5,10 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.semenovValentine.tgBot.entity.Category;
-import ru.semenovValentine.tgBot.entity.Product;
-import ru.semenovValentine.tgBot.repository.CategoryRepository;
-import ru.semenovValentine.tgBot.repository.ProductRepository;
+import ru.semenovValentine.tgBot.entity.*;
+import ru.semenovValentine.tgBot.dao.*;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -81,7 +79,7 @@ class FillingTests {
         fillingBurgerCategory();
         fillingDrinkCategory();
         fillingPizzaCategory();
-    }
+  }
 
     void fillingRollCategory(){
         Category bakedRolls = categoryRepository.findCategoryByName("Baked Rolls").orElseThrow();

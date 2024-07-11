@@ -17,8 +17,7 @@ public class ClientOrder {
     @Column(length = 15, precision = 2, nullable = false)
     private Double total;
 
-    public ClientOrder(Long id, Client client, Integer status, Double total) {
-        this.id = id;
+    public ClientOrder(Client client, Integer status, Double total) {
         this.client = client;
         this.status = status;
         this.total = total;
