@@ -12,6 +12,8 @@ import ru.semenovValentine.tgBot.interfaces.ITelegramKeyboardService;
 import ru.semenovValentine.tgBot.rest.service.CategoryService;
 import ru.semenovValentine.tgBot.rest.service.ClientOrderService;
 import ru.semenovValentine.tgBot.rest.service.ProductService;
+import ru.semenovValentine.tgBot.telegram.messages.BaseKeyword;
+import ru.semenovValentine.tgBot.telegram.messages.CallbackKeyword;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,9 +49,9 @@ public class TelegramKeyboardService implements ITelegramKeyboardService {
     private ReplyKeyboardMarkup getReplyKeyboardMarkup(List<KeyboardButton> categories) {
         ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup(categories.toArray(new KeyboardButton[0]));
         markup.resizeKeyboard(true);
-        markup.addRow(new KeyboardButton("В основное меню"));
-        markup.addRow(new KeyboardButton("Информация о заказе"));
-        markup.addRow(new KeyboardButton("Оформить заказ"));
+        markup.addRow(new KeyboardButton(BaseKeyword.MAIN_MENU_1.getCommand()));
+        markup.addRow(new KeyboardButton(BaseKeyword.ORDER_INFO.getCommand()));
+        markup.addRow(new KeyboardButton(BaseKeyword.PLACE_ORDER.getCommand()));
         return markup;
     }
 
@@ -58,7 +60,7 @@ public class TelegramKeyboardService implements ITelegramKeyboardService {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         for (Product product : products) {
             InlineKeyboardButton button = new InlineKeyboardButton(String.format("%s. Цена %.2f $", product.getName(), product.getPrice()))
-                    .callbackData(String.format("add product:%d", product.getId()));
+                    .callbackData(String.format("%s:%d", CallbackKeyword.ADD_PRODUCT.getKeyword(), product.getId()));
             markup.addRow(button);
         }
         return markup;
@@ -67,8 +69,8 @@ public class TelegramKeyboardService implements ITelegramKeyboardService {
     public InlineKeyboardMarkup createInlineForCreatedOrder(Client client){
         ClientOrder clientOrder = clientOrderService.findActiveByClient(client).orElseThrow();
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-        InlineKeyboardButton button = new InlineKeyboardButton("Информация о заказе")
-                .callbackData(String.format("info order:%d", clientOrder.getId()));
+        InlineKeyboardButton button = new InlineKeyboardButton(BaseKeyword.ORDER_INFO.getCommand())
+                .callbackData(String.format("%s:%d", CallbackKeyword.INFO_ORDER.getKeyword(), clientOrder.getId()));
         markup.addRow(button);
         return markup;
     }
@@ -76,8 +78,8 @@ public class TelegramKeyboardService implements ITelegramKeyboardService {
     public InlineKeyboardMarkup createInlineForListOrder(Client client){
         ClientOrder clientOrder = clientOrderService.findActiveByClient(client).orElseThrow();
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-        InlineKeyboardButton button = new InlineKeyboardButton("Очистить заказ")
-                .callbackData(String.format("flush order:%d", clientOrder.getId()));
+        InlineKeyboardButton button = new InlineKeyboardButton(BaseKeyword.RESET_ORDER.getCommand())
+                .callbackData(String.format("%s:%d",CallbackKeyword.FLUSH_ORDER.getKeyword(), clientOrder.getId()));
         markup.addRow(button);
         return markup;
     }

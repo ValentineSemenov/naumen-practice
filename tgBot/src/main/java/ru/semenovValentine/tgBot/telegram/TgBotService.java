@@ -9,11 +9,18 @@ import org.springframework.stereotype.Service;
 import ru.semenovValentine.tgBot.entity.*;
 import ru.semenovValentine.tgBot.interfaces.ITgBotService;
 import ru.semenovValentine.tgBot.rest.service.*;
+import ru.semenovValentine.tgBot.telegram.messages.BaseKeyword;
+import ru.semenovValentine.tgBot.telegram.messages.CallbackKeyword;
+import ru.semenovValentine.tgBot.telegram.messages.Regexes;
 
 import java.util.*;
 
 @Service
 public class TgBotService implements ITgBotService {
+    private final String EMPTY_VALUE = "Не указан";
+    private final String EMPTY_ORDER = "Заказ пуст.";
+    private static final int ORDER_CONFIRMED = 2;
+    private static final int ORDER_ACTIVE = 1;
     private final ClientService clientService;
     private final CategoryService categoryService;
     private final ProductService productService;
@@ -21,7 +28,9 @@ public class TgBotService implements ITgBotService {
     private final ClientOrderService clientOrderService;
     private final TelegramKeyboardService keyboard;
 
-    public TgBotService(ClientService clientService, CategoryService categoryService, ProductService productService, OrderProductService orderProductService, ClientOrderService clientOrderService, ru.semenovValentine.tgBot.telegram.TelegramKeyboardService keyboard) {
+    public TgBotService(ClientService clientService, CategoryService categoryService,
+                        ProductService productService, OrderProductService orderProductService,
+                        ClientOrderService clientOrderService, TelegramKeyboardService keyboard) {
         this.clientService = clientService;
         this.categoryService = categoryService;
         this.productService = productService;
@@ -33,14 +42,16 @@ public class TgBotService implements ITgBotService {
         Long chatId = callbackQuery.from().id();
         String data = callbackQuery.data();
         // Парсим callback для извлечения ключевого слова
-        String callbackKeyword = data.replaceAll("[0-9:]", "");
+        String callbackKeyword = data.replaceAll(Regexes.NUMS.getRegex(), "");
 
         try {
-            switch (callbackKeyword) {
-                case "add product" -> handleProductCallback(chatId, data, bot);
-                case "info order" -> handleOrderInfoCallback(chatId, bot, data);
-                case "flush order" -> flushOrder(data);
-            }
+            CallbackKeyword.fromString(callbackKeyword).ifPresent(keyword -> {
+                switch (keyword) {
+                    case ADD_PRODUCT -> handleProductCallback(chatId, data, bot);
+                    case INFO_ORDER -> handleOrderInfoCallback(chatId, bot, data);
+                    case FLUSH_ORDER -> flushOrder(data);
+                }
+            });
         } catch (Exception e) {
             bot.execute(new SendMessage(chatId, e.toString()));
         }
@@ -52,7 +63,7 @@ public class TgBotService implements ITgBotService {
         String fullName = String.format("%s %s", message.from().firstName(), message.from().lastName());
 
         //Аргументы кроме externalId нужны только при создании
-        Client client = clientService.getOrCreateClient(externalId, fullName, "Не указан", "Не указан");
+        Client client = clientService.getOrCreateClient(externalId, fullName, EMPTY_VALUE, EMPTY_VALUE);
 
         // Если пользователь отправляет номер телефона боту - ловим его в этом if
         if (message.contact() != null) {
@@ -64,15 +75,16 @@ public class TgBotService implements ITgBotService {
         }
 
         String text = message.text();
+
         try {
-            switch (text) {
-                case "/start" -> sendStartMessage(chatId, bot);
-                case "В основное меню", "Меню", "/menu" -> sendMainMenu(chatId, bot);
-                case "Информация о заказе" -> sendOrderInfo(chatId, client, bot);
-                case "Оформить заказ" -> placeOrder(chatId, client, bot);
-                //логика работы с категориями в default
-                default -> sendCategoryMenu(chatId, text, bot);
-            }
+            BaseKeyword.fromString(text).ifPresentOrElse(command -> {
+                switch (command) {
+                    case START -> sendStartMessage(chatId, bot);
+                    case MAIN_MENU_1, MAIN_MENU_2, MAIN_MENU_3 -> sendMainMenu(chatId, bot);
+                    case ORDER_INFO -> sendOrderInfo(chatId, client, bot);
+                    case PLACE_ORDER -> placeOrder(chatId, client, bot);
+                }
+            }, () -> sendCategoryMenu(chatId, text, bot));
         } catch (Exception ignored) {
         }
     }
@@ -82,7 +94,7 @@ public class TgBotService implements ITgBotService {
         ClientOrder clientOrder = clientOrderService.findActiveByClient(client).orElseThrow();
 
         //Парсим callback для извлечения id продукта
-        Long productId = Long.parseLong(data.replaceAll("[^0-9]", ""));
+        Long productId = Long.parseLong(data.replaceAll(Regexes.LITERALS.getRegex(), ""));
         Product product = productService.findById(productId).orElseThrow();
 
         clientOrder.setTotal(clientOrder.getTotal() + product.getPrice());
@@ -102,7 +114,7 @@ public class TgBotService implements ITgBotService {
     }
     private void sendMainMenu(Long chatId, TelegramBot bot) {
         ReplyKeyboardMarkup markup = keyboard.createBaseKeyboard();
-        SendMessage sendMessage = new SendMessage(chatId, "Основное меню")
+        SendMessage sendMessage = new SendMessage(chatId, BaseKeyword.MAIN_MENU_1.getCommand())
                 .replyMarkup(markup);
         bot.execute(sendMessage);
     }
@@ -110,11 +122,11 @@ public class TgBotService implements ITgBotService {
     private void placeOrder(Long chatId, Client client, TelegramBot bot){
         ClientOrder clientOrder = clientOrderService.findActiveByClient(client).orElseThrow();
         if (clientOrder.getTotal() == 0.0) {
-            bot.execute(new SendMessage(chatId, "Заказ пуст."));
+            bot.execute(new SendMessage(chatId, EMPTY_ORDER));
             return;
         }
 
-        if (client.getPhoneNumber().equals("Не указан")) {
+        if (client.getPhoneNumber().equals(EMPTY_VALUE)) {
             KeyboardButton phoneButton = new KeyboardButton("Отправить номер телефона").requestContact(true);
             ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup(phoneButton).resizeKeyboard(true);
             SendMessage requestContactMessage = new SendMessage(chatId,
@@ -124,7 +136,7 @@ public class TgBotService implements ITgBotService {
             return;
         }
 
-        if(client.getAddress().equals("Не указан")) {
+        if(client.getAddress().equals(EMPTY_VALUE)) {
             KeyboardButton addressButton = new KeyboardButton("Отправить адрес").requestLocation(true);
             ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup(addressButton).resizeKeyboard(true);
             SendMessage requestContactMessage = new SendMessage(chatId,
@@ -140,10 +152,10 @@ public class TgBotService implements ITgBotService {
         Keyboard markup = keyboard.createInlineForCreatedOrder(client);
         bot.execute(new SendMessage(chatId, text).replyMarkup(markup));
 
-        clientOrder.setStatus(2);
+        clientOrder.setStatus(ORDER_CONFIRMED);
         clientOrderService.save(clientOrder);
 
-        ClientOrder newClientOrder = new ClientOrder(client, 1, 0.0);
+        ClientOrder newClientOrder = new ClientOrder(client, ORDER_ACTIVE, 0.0);
         clientOrderService.save(newClientOrder);
     }
 
@@ -169,7 +181,7 @@ public class TgBotService implements ITgBotService {
         Client client = clientService.getByExternalId(chatId).orElseThrow();
 
         if (orderProducts.isEmpty()) {
-            bot.execute(new SendMessage(chatId, "Заказ пуст."));
+            bot.execute(new SendMessage(chatId, EMPTY_ORDER));
             return;
         }
 
@@ -180,7 +192,7 @@ public class TgBotService implements ITgBotService {
 
         StringBuilder orderMessage = buildOrderInfoMessage(productCountMap);
 
-        if(clientOrder.getStatus() == 1) {
+        if(clientOrder.getStatus() == ORDER_ACTIVE) {
             Keyboard markup = keyboard.createInlineForListOrder(client);
             SendMessage sendFlushMessage = new SendMessage(chatId, orderMessage.toString()).replyMarkup(markup)
                     .parseMode(ParseMode.Markdown);
@@ -210,15 +222,15 @@ public class TgBotService implements ITgBotService {
     }
 
     private void handleOrderInfoCallback(Long chatId, TelegramBot bot, String data) {
-        Long id = Long.parseLong(data.replaceAll("[^0-9]", ""));
+        Long id = Long.parseLong(data.replaceAll(Regexes.LITERALS.getRegex(), ""));
         ClientOrder clientOrder = clientOrderService.findById(id).orElseThrow();
         processAndPrintOrderInfo(chatId, bot, clientOrder);
     }
 
     private void flushOrder(String data) {
-        Long id = Long.parseLong(data.replaceAll("[^0-9]", ""));
+        Long id = Long.parseLong(data.replaceAll(Regexes.LITERALS.getRegex(), ""));
         ClientOrder clientOrder = clientOrderService.findById(id).orElseThrow();
-        if(clientOrder.getStatus() == 1) {
+        if(clientOrder.getStatus() == ORDER_ACTIVE) {
             orderProductService.delete(clientOrder);
             clientOrder.setTotal(0.0);
             clientOrderService.save(clientOrder);
