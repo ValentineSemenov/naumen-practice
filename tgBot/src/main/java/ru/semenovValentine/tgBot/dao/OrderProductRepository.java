@@ -3,6 +3,7 @@ package ru.semenovValentine.tgBot.dao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import ru.semenovValentine.tgBot.entity.ClientOrder;
 import ru.semenovValentine.tgBot.entity.OrderProduct;
 import ru.semenovValentine.tgBot.entity.Product;
 
@@ -19,4 +20,8 @@ public interface OrderProductRepository extends JpaRepository<OrderProduct, Long
             "ORDER BY SUM(op.countProduct) DESC " +
             "LIMIT :limit")
     List<Product> findTopPopularProducts(Integer limit);
+
+    List<OrderProduct> findByClientOrder(ClientOrder clientOrder);
+
+    void deleteAllByClientOrder(ClientOrder clientOrder);
 }

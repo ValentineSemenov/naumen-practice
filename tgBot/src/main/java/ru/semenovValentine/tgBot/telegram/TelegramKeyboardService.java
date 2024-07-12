@@ -1,0 +1,84 @@
+package ru.semenovValentine.tgBot.telegram;
+
+import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
+import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
+import com.pengrad.telegrambot.model.request.KeyboardButton;
+import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
+import org.springframework.stereotype.Service;
+import ru.semenovValentine.tgBot.entity.Client;
+import ru.semenovValentine.tgBot.entity.ClientOrder;
+import ru.semenovValentine.tgBot.entity.Product;
+import ru.semenovValentine.tgBot.interfaces.ITelegramKeyboardService;
+import ru.semenovValentine.tgBot.rest.service.CategoryService;
+import ru.semenovValentine.tgBot.rest.service.ClientOrderService;
+import ru.semenovValentine.tgBot.rest.service.ProductService;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class TelegramKeyboardService implements ITelegramKeyboardService {
+    private final CategoryService categoryService;
+    private final ProductService productService;
+    private final ClientOrderService clientOrderService;
+
+    public TelegramKeyboardService(CategoryService categoryService, ProductService productService, ClientOrderService clientOrderService) {
+        this.categoryService = categoryService;
+        this.productService = productService;
+        this.clientOrderService = clientOrderService;
+    }
+
+    public ReplyKeyboardMarkup createBaseKeyboard() {
+        List<KeyboardButton> categories = categoryService.getCategoriesByParentId(null)
+                .stream()
+                .map(category -> new KeyboardButton(category.getName()))
+                .collect(Collectors.toList());
+        return getReplyKeyboardMarkup(categories);
+    }
+
+    public ReplyKeyboardMarkup createSubKeyboard(Long categoryId) {
+        List<KeyboardButton> categories = categoryService.getCategoriesByParentId(categoryId)
+                .stream()
+                .map(category -> new KeyboardButton(category.getName()))
+                .collect(Collectors.toList());
+        return getReplyKeyboardMarkup(categories);
+    }
+
+    private ReplyKeyboardMarkup getReplyKeyboardMarkup(List<KeyboardButton> categories) {
+        ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup(categories.toArray(new KeyboardButton[0]));
+        markup.resizeKeyboard(true);
+        markup.addRow(new KeyboardButton("В основное меню"));
+        markup.addRow(new KeyboardButton("Информация о заказе"));
+        markup.addRow(new KeyboardButton("Оформить заказ"));
+        return markup;
+    }
+
+    public InlineKeyboardMarkup createInlineButtons(Long subCategoryId) {
+        List<Product> products = productService.getProductsByCategoryId(subCategoryId);
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        for (Product product : products) {
+            InlineKeyboardButton button = new InlineKeyboardButton(String.format("%s. Цена %.2f $", product.getName(), product.getPrice()))
+                    .callbackData(String.format("add product:%d", product.getId()));
+            markup.addRow(button);
+        }
+        return markup;
+    }
+
+    public InlineKeyboardMarkup createInlineForCreatedOrder(Client client){
+        ClientOrder clientOrder = clientOrderService.findActiveByClient(client).orElseThrow();
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        InlineKeyboardButton button = new InlineKeyboardButton("Информация о заказе")
+                .callbackData(String.format("info order:%d", clientOrder.getId()));
+        markup.addRow(button);
+        return markup;
+    }
+
+    public InlineKeyboardMarkup createInlineForListOrder(Client client){
+        ClientOrder clientOrder = clientOrderService.findActiveByClient(client).orElseThrow();
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        InlineKeyboardButton button = new InlineKeyboardButton("Очистить заказ")
+                .callbackData(String.format("flush order:%d", clientOrder.getId()));
+        markup.addRow(button);
+        return markup;
+    }
+}

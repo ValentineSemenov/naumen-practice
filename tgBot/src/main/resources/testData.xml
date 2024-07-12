@@ -1,77 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <database>
     <categories>
-        <category name="burgers">
-            <subcategory name="Classical Burgers">
-                <product name="Classic Burger" description="Traditional beef burger" price="8.49"/>
-                <product name="Cheeseburger" description="Burger with melted cheese" price="9.99"/>
-                <product name="Veggie Burger" description="Vegetarian burger with mushrooms" price="9.99"/>
+        <category name="Бургеры">
+            <subcategory name="Классика">
+                <product name="Классический Бургер" description="Традиционный бургер из говядины" price="8.49"/>
+                <product name="Чизбургер" description="Бургер с расплавленным сыром" price="9.99"/>
+                <product name="Вегетарианский Бургер" description="Вегетарианский бургер с грибами" price="9.99"/>
             </subcategory>
-            <subcategory name="Spicy Burgers">
-                <product name="Karolina Reaper" description="Hottest Pepper in the world" price="302.50"/>
-                <product name="Scoville King" description="1000 Scoville bomb" price="10.00"/>
-                <product name="Hot" description="Hot trip" price="20.62"/>
+            <subcategory name="Острые">
+                <product name="Каролина Рипер" description="Самый острый перец в мире" price="302.50"/>
+                <product name="Король Сковилла" description="Бомба в 1000 единиц Сковилла" price="10.00"/>
+                <product name="Острый" description="Острое путешествие" price="20.62"/>
             </subcategory>
-            <subcategory name="Fancy Burgers">
-                <product name="Gold Burger" description="999 burger" price="999.99"/>
-                <product name="Silver Burger" description="True silver burger" price="925.25"/>
-                <product name="Platinum Burger" description="All from platinum burger!!!" price="1000.00"/>
-            </subcategory>
-        </category>
-        <category name="drinks">
-            <subcategory name="Carbonated Drinks">
-                <product name="Borjomi" description="Carbonated Water" price="10.20"/>
-                <product name="bonaqua" description="Carbonated Water" price="9.00"/>
-                <product name="Coca Cola" description="Soda" price="11.00"/>
-            </subcategory>
-            <subcategory name="Energetic Drinks">
-                <product name="Red Bull" description="Original flavor" price="5.22"/>
-                <product name="Adrenaline" description="Zero sugar" price="3.20"/>
-                <product name="Monster" description="Coconut flavor" price="10.62"/>
-            </subcategory>
-            <subcategory name="Juices">
-                <product name="Orange Juice" description="Juice" price="10.00"/>
-                <product name="Cherry Juice" description="Juice" price="10.00"/>
-                <product name="Apple Juice" description="Juice" price="10.00"/>
-            </subcategory>
-            <subcategory name="Others">
-                <product name="Leffe Blonde" description="Bear" price="31.64"/>
-                <product name="Artesian Water" description="Water" price="100.00"/>
-                <product name="Your Drinks" description="Сorkage fee. 100 dollars per fee" price="100.00"/>
+            <subcategory name="Фирменные">
+                <product name="Золотой Бургер" description="999 бургер" price="999.99"/>
+                <product name="Серебряный Бургер" description="Настоящий серебряный бургер" price="925.25"/>
+                <product name="Платиновый Бургер" description="Весь из платины!!!" price="1000.00"/>
             </subcategory>
         </category>
-        <category name="rolls">
-            <subcategory name="Baked Rolls">
-                <product name="Okami" description="Baked rolls" price="11.99"/>
-                <product name="Hatico" description="Baked rolls" price="12.99"/>
-                <product name="Samurai" description="Baked rolls" price="15.79"/>
+        <category name="Напитки">
+            <subcategory name="Газированные">
+                <product name="Боржоми" description="Газированная вода" price="10.20"/>
+                <product name="Bonaqua" description="Газированная вода" price="9.00"/>
+                <product name="Coca Cola" description="Сода" price="11.00"/>
             </subcategory>
-            <subcategory name="Sweet Rolls">
-                <product name="Panko" description="Sweet rolls" price="10.99"/>
-                <product name="Danko" description="Sweet rolls" price="11.99"/>
-                <product name="Tanko" description="Sweet rolls" price="12.49"/>
+            <subcategory name="Энергетические">
+                <product name="Red Bull" description="Оригинальный вкус" price="5.22"/>
+                <product name="Адреналин" description="Без сахара" price="3.20"/>
+                <product name="Monster" description="Кокосовый вкус" price="10.62"/>
             </subcategory>
-            <subcategory name="Sets">
-                <product name="Red Dragon" description="Sets" price="30.00"/>
-                <product name="Black Dragon" description="Sets" price="40.00"/>
-                <product name="White Dragon" description="Sets" price="40.00"/>
+            <subcategory name="Соки">
+                <product name="Апельсиновый" description="Сок" price="10.00"/>
+                <product name="Вишневый Сок" description="Сок" price="10.00"/>
+                <product name="Яблочный Сок" description="Сок" price="10.00"/>
+            </subcategory>
+            <subcategory name="Другое">
+                <product name="Leffe Blonde" description="Пиво" price="31.64"/>
+                <product name="Артезианская Вода" description="Вода" price="100.00"/>
+                <product name="Ваши Напитки" description="Пробковый сбор. 100 долларов за сбор" price="100.00"/>
             </subcategory>
         </category>
-        <category name="pizza">
-            <subcategory name="Italian pizza">
-                <product name="Neapolitan pizza" description="Neapolitan pizza" price="15.50"/>
-                <product name="Margarita" description="Margarita" price="15.50"/>
-                <product name="Italian classic" description="Italian classic pizza" price="15.50"/>
+        <category name="Роллы">
+            <subcategory name="Запеченные">
+                <product name="Окками" description="Запеченные роллы" price="11.99"/>
+                <product name="Хатико" description="Запеченные роллы" price="12.99"/>
+                <product name="Самурай" description="Запеченные роллы" price="15.79"/>
             </subcategory>
-            <subcategory name="American pizza">
-                <product name="New York Pizza" description="The best New York pizza" price="10.50"/>
-                <product name="Chicago Pizza" description="Gangsters Chicago pizza" price="10.00"/>
-                <product name="Los Angeles Pizza" description="Angeles pizza" price="12.63"/>
+            <subcategory name="Сладкие">
+                <product name="Панко" description="Сладкие роллы" price="10.99"/>
+                <product name="Данко" description="Сладкие роллы" price="11.99"/>
+                <product name="Танко" description="Сладкие роллы" price="12.49"/>
             </subcategory>
-            <subcategory name="Other">
-                <product name="Vegan Pizza" description="Vegan pizza" price="12.99"/>
-                <product name="Vegetarian Pizza" description="Vegetarian pizza" price="14.25"/>
-                <product name="Sweet Pizza" description="Too sweet for desert - taste it!" price="15.00"/>
+            <subcategory name="Наборы">
+                <product name="Красный Дракон" description="Наборы" price="30.00"/>
+                <product name="Черный Дракон" description="Наборы" price="40.00"/>
+                <product name="Белый Дракон" description="Наборы" price="40.00"/>
+            </subcategory>
+        </category>
+        <category name="Пицца">
+            <subcategory name="Итальянская">
+                <product name="Неаполитанская" description="Neapolitan pizza" price="15.50"/>
+                <product name="Маргарита" description="Margarita" price="15.50"/>
+                <product name="Итальянская классика" description="Italian classic pizza" price="15.50"/>
+            </subcategory>
+            <subcategory name="Американская">
+                <product name="New York" description="The best New York pizza" price="10.50"/>
+                <product name="Chicago" description="Gangsters Chicago pizza" price="10.00"/>
+                <product name="Los Angeles" description="Angeles pizza" price="12.63"/>
+            </subcategory>
+            <subcategory name="Другие">
+                <product name="Веганская" description="Vegan pizza" price="12.99"/>
+                <product name="Вегетарианская" description="Vegetarian pizza" price="14.25"/>
+                <product name="Сладкая" description="Too sweet for desert - taste it!" price="15.00"/>
             </subcategory>
         </category>
     </categories>
