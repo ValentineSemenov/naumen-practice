@@ -6,6 +6,7 @@ import ru.semenovValentine.tgBot.dao.OrderProductRepository;
 import ru.semenovValentine.tgBot.dao.ProductRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -34,5 +35,9 @@ public class ProductService {
         return list1.stream()
                 .filter(list2::contains)
                 .toList();
+    }
+
+    public Optional<Product> findById(Long id) {
+        return productRepository.findById(id);
     }
 }
